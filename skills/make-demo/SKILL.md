@@ -182,24 +182,29 @@ For scenes that need animated explainers, flow diagrams, or motion graphics inst
 - Use the app's color scheme for visual consistency
 - Prefer simple, clean motion graphics over complex 3D or particle effects
 
-### Step 4: Generate Avatar Clips
+### Step 4: Generate Avatar Video
 
 Skip this step if `--no-avatar` or `--preview` was specified.
 
-1. First, check available avatars:
+Generate **one single continuous avatar video** with all the narration combined. Do NOT generate separate clips per scene — separate clips create jarring cuts between sentences. One continuous video gives natural speech flow.
+
+1. Check available avatars:
    ```bash
    npx devrel-toolkit d-id avatars
    ```
 
-2. Prepare an avatar script JSON file (`./demo-work/avatar-script.json`):
+2. Concatenate ALL scene narrations into one text, in order, with natural pauses between sections. Use `npx devrel-toolkit d-id generate` with a single-scene script:
    ```json
    [
-     { "id": "scene-1-landing", "narration": "Welcome to our platform...", "avatarId": "<chosen-avatar-id>" },
-     { "id": "scene-2-signup", "narration": "Signing up is simple...", "avatarId": "<chosen-avatar-id>" }
+     {
+       "id": "full-narration",
+       "narration": "Welcome to our platform. Let me show you how easy it is to get started. ... Signing up is simple. Just click the button and fill in your details. ... And that's it — you're ready to go.",
+       "avatarId": "<chosen-avatar-id>"
+     }
    ]
    ```
 
-3. Generate avatar clips:
+3. Generate:
    ```bash
    npx devrel-toolkit d-id generate \
      --script ./demo-work/avatar-script.json \
@@ -207,7 +212,7 @@ Skip this step if `--no-avatar` or `--preview` was specified.
      --avatar "<avatar-id>"
    ```
 
-4. This takes 1–5 minutes per scene. Wait for completion. The output includes a `manifest.json` with clip paths and durations.
+4. This takes 1–5 minutes. The output includes a `manifest.json` with the clip path and total duration. Use this single avatar clip as `avatarClipPath` for the **first scene only** — the PiP will play continuously across all scenes.
 
 ### Step 5: Assemble Render Props
 
@@ -217,12 +222,15 @@ Combine screenshots, avatar clips, bounding boxes, and timing into `render-props
 {
   "resolution": { "width": 1920, "height": 1080 },
   "fps": 30,
+  "avatarClipPath": "/absolute/path/to/demo-work/avatars/full-narration.mp4",
+  "avatarPosition": "bottom-right",
+  "avatarSize": 280,
+  "showSubtitles": true,
   "scenes": [
     {
       "id": "scene-1-landing",
       "screenshotPath": "/absolute/path/to/demo-work/screenshots/scene-1-landing.png",
-      "avatarClipPath": "/absolute/path/to/demo-work/avatars/scene-1-landing.mp4",
-      "avatarDuration": 4.5,
+      "avatarDuration": 5.0,
       "narration": "Welcome to our platform. Let me show you how easy it is to get started.",
       "highlights": [],
       "zoom": {
@@ -230,17 +238,25 @@ Combine screenshots, avatar clips, bounding boxes, and timing into `render-props
         "level": 1.4
       },
       "transition": "fade"
+    },
+    {
+      "id": "scene-2-flow",
+      "screenshotPath": "/absolute/path/to/demo-work/screenshots/scene-2-flow.mp4",
+      "avatarDuration": 6.0,
+      "narration": "The server verifies your wallet and checks the on-chain balance.",
+      "highlights": [],
+      "transition": "fade"
     }
-  ],
-  "avatarPosition": "bottom-right",
-  "avatarSize": 280,
-  "showSubtitles": true
+  ]
 }
 ```
 
-**Important**: All file paths must be **absolute paths**.
-
-Get avatar durations from the `manifest.json` generated in Step 4. If no avatar, estimate duration from narration word count (~150 words per minute).
+**Important**:
+- All file paths must be **absolute paths**
+- `avatarClipPath` at the top level is the single continuous avatar video — it plays across all scenes
+- Each scene still needs `avatarDuration` — this controls how long that scene lasts (divide the total avatar duration across scenes proportionally based on narration word count)
+- `screenshotPath` can be a PNG (app screenshot) or MP4 (custom animation from Step 3b)
+- Get the total avatar duration from `manifest.json`. Divide it across scenes based on word count.
 
 ### Step 6: Render the Video
 

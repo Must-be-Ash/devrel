@@ -43,6 +43,9 @@ async function doRender(opts: {
       missingFiles.push(`Avatar clip: ${scene.avatarClipPath} (scene: ${scene.id})`);
     }
   }
+  if (inputProps.avatarClipPath && !existsSync(inputProps.avatarClipPath)) {
+    missingFiles.push(`Avatar clip: ${inputProps.avatarClipPath}`);
+  }
   if (inputProps.backgroundMusic && !existsSync(inputProps.backgroundMusic)) {
     missingFiles.push(`Background music: ${inputProps.backgroundMusic}`);
   }
@@ -92,6 +95,9 @@ async function doRender(opts: {
     if (scene.avatarClipPath) {
       scene.avatarClipPath = copyAsset(scene.avatarClipPath);
     }
+  }
+  if (inputProps.avatarClipPath) {
+    inputProps.avatarClipPath = copyAsset(inputProps.avatarClipPath);
   }
   if (inputProps.backgroundMusic) {
     inputProps.backgroundMusic = copyAsset(inputProps.backgroundMusic);

@@ -33,6 +33,7 @@ export const DemoVideo: React.FC<RenderProps> = (props) => {
     fps,
     avatarPosition = "bottom-right",
     avatarSize = 280,
+    avatarClipPath,
     showSubtitles = true,
     intro,
     outro,
@@ -51,6 +52,7 @@ export const DemoVideo: React.FC<RenderProps> = (props) => {
     : 0;
 
   const transitionFrames = Math.ceil(TRANSITION_DURATION_FRAMES * (fps / 30));
+  const totalFrames = introFrames + calculateTotalFrames(props) + outroFrames;
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#000" }}>
@@ -90,6 +92,7 @@ export const DemoVideo: React.FC<RenderProps> = (props) => {
                   avatarPosition={avatarPosition}
                   avatarSize={avatarSize}
                   showSubtitles={showSubtitles}
+                  compositionHasAvatar={!!avatarClipPath}
                 />
               </TransitionSeries.Sequence>
 
@@ -111,6 +114,16 @@ export const DemoVideo: React.FC<RenderProps> = (props) => {
           </TransitionSeries.Sequence>
         )}
       </TransitionSeries>
+
+      {/* Composition-level avatar — one continuous video spanning all scenes */}
+      {avatarClipPath && (
+        <AvatarPiP
+          clipPath={avatarClipPath}
+          position={avatarPosition}
+          size={avatarSize}
+          durationFrames={totalFrames}
+        />
+      )}
     </AbsoluteFill>
   );
 };
@@ -124,7 +137,8 @@ const SceneContent: React.FC<{
   avatarPosition: NonNullable<RenderProps["avatarPosition"]>;
   avatarSize: number;
   showSubtitles: boolean;
-}> = ({ scene, durationFrames, avatarPosition, avatarSize, showSubtitles }) => {
+  compositionHasAvatar: boolean;
+}> = ({ scene, durationFrames, avatarPosition, avatarSize, showSubtitles, compositionHasAvatar }) => {
   return (
     <AbsoluteFill>
       {/* Browser screenshot with zoom animation */}
@@ -151,8 +165,8 @@ const SceneContent: React.FC<{
         />
       )}
 
-      {/* Avatar picture-in-picture */}
-      {scene.avatarClipPath && (
+      {/* Per-scene avatar (only if no composition-level avatar) */}
+      {scene.avatarClipPath && !compositionHasAvatar && (
         <AvatarPiP
           clipPath={scene.avatarClipPath}
           position={avatarPosition}

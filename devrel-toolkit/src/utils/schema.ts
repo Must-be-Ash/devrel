@@ -103,6 +103,7 @@ export const RenderPropsSchema = z.object({
     .enum(["bottom-right", "bottom-left", "top-right", "top-left"])
     .optional(),
   avatarSize: z.number().optional(),
+  avatarClipPath: z.string().optional(),
   showSubtitles: z.boolean().optional(),
   intro: IntroOutroSchema.optional(),
   outro: IntroOutroSchema.optional(),
