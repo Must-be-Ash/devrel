@@ -23,7 +23,7 @@ Install the DevRel Agent video toolkit. Do ALL of the following steps:
 Once everything is done, tell me to restart Claude Code so the skills load.
 ```
 
-Replace `https://github.com/Must-be-Ash/devrel` with the GitHub repo URL once published, and `<my_key>` with your D-ID API key from [d-id.com](https://studio.d-id.com).
+Replace `<my_key>` with your D-ID API key from [d-id.com](https://studio.d-id.com).
 
 After Claude Code finishes, **restart Claude Code** so the skills load.
 
