@@ -40,7 +40,11 @@ npx devrel-toolkit doctor
 
 If any checks fail, run `npx devrel-toolkit setup`.
 
-**Browser automation**: You MUST use `browser-use` CLI for all browser interactions (screenshots, clicks, element detection). Do NOT use Playwright, Puppeteer, or write custom browser scripts. browser-use CLI is the required tool. Only fall back to Playwright if browser-use is genuinely not installed and cannot be installed.
+**Browser automation**: You MUST use `browser-use` CLI for all browser interactions. If `browser-use` is not found, install it:
+```bash
+curl -fsSL https://browser-use.com/cli/install.sh | bash
+```
+Do NOT fall back to Playwright. Do NOT write custom browser scripts. Install browser-use and use it.
 
 **D-ID API key**: Check if `DID_API_KEY` is set (in `.env.local` or environment). If it is NOT set and the user did NOT pass `--no-avatar`:
 - Ask the user: "I need a D-ID API key to generate the avatar presenter. You can get one at https://studio.d-id.com. Would you like to provide your key, or should I skip the avatar and create a video without a presenter?"
@@ -282,9 +286,10 @@ Wait for the render to complete. This may take a few minutes.
 ## Error Handling
 
 **browser-use not found:**
-- Run `npx devrel-toolkit setup` or install manually: `curl -fsSL https://browser-use.com/cli/install.sh | bash`
+- Install it: `curl -fsSL https://browser-use.com/cli/install.sh | bash`
+- Or run `npx devrel-toolkit setup` which handles the installation
 - Do NOT use `pip install browser-use` — that installs the Python SDK, not the CLI
-- If browser-use cannot be installed, fall back to Playwright
+- Do NOT fall back to Playwright — install browser-use
 
 **Browser navigation fails:**
 - Retry the action once
