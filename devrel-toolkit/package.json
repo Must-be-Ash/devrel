@@ -1,6 +1,6 @@
 {
   "name": "devrel-toolkit",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Toolkit for automated product demo video creation with AI avatars and Remotion compositing",
   "type": "module",
   "bin": {

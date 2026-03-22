@@ -72,7 +72,7 @@ async function checkDidApiKey(): Promise<CheckResult> {
 
   // Test the key with a lightweight API call
   try {
-    const response = await fetch("https://api.d-id.com/expressives/avatars", {
+    const response = await fetch("https://api.d-id.com/clips/presenters", {
       headers: {
         Authorization: `Basic ${config.didApiKey}`,
         "Content-Type": "application/json",
