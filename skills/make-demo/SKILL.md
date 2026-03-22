@@ -60,24 +60,14 @@ If any checks fail, run `npx devrel-toolkit setup`.
 
 ### Step 2: Plan the Demo
 
-Based on the user's prompt and your codebase knowledge, plan the demo:
+Plan the demo based on the user's prompt. If the user gave a detailed description of what they want, build on top of it — improve pacing, narration, and structure, but don't discard their intent. If the prompt is brief, use your codebase knowledge to decide what to show and how.
 
-- Break into **3–8 logical scenes**
-- Write **natural, conversational narration** for each scene (30–60 words per scene)
-- For each scene, decide the **scene type**:
-  - **App footage** — screenshot of the actual app UI. Use for showing real product screens.
-  - **Custom animation** — a Remotion animation you write as a React component. Use for explaining concepts, flows, diagrams, comparisons, or anything that's better communicated with motion graphics than a static screenshot.
-- Choose **transitions** between scenes (`fade` for most, `slide` for page changes, `cut` for quick switches)
+You have two tools for creating scenes — use whichever makes sense for each part of the video:
 
-**Scene-level mixing**: The best demos interleave app footage with custom animations. For example:
-- Scene 1 (app): Show the full /demo page — the real UI
-- Scene 2 (animation): Animated flow diagram showing Client → Server → Solana → 200 OK with arrows and labels animating in
-- Scene 3 (app): Show the actual 200 OK response on screen
-- Scene 4 (animation): Summary card with key takeaways
+- **App footage** — capture screenshots of the real app UI via browser-use. Good for showing the actual product.
+- **Custom Remotion animations** — write React components for motion graphics, flow diagrams, explainers, or anything that communicates better with animation than a static screenshot. Render them to MP4 clips.
 
-**For app footage scenes**: Use browser-use to navigate and screenshot (Step 3). Use zoom to frame the relevant area — get precise bbox with `browser-use get bbox`. Avoid highlight overlays unless absolutely needed.
-
-**For custom animation scenes**: Write a Remotion React component (Step 3b). You have the Remotion best-practices skill installed — use `interpolate()`, `spring()`, `useCurrentFrame()`. Render it to an MP4 clip, then use that clip as the scene's screenshot in render-props.
+You decide the scene count, scene types, narration, zoom targets, and pacing. Mix app footage and custom animations however best serves the demo.
 
 Produce a `demo-script.json` file:
 
