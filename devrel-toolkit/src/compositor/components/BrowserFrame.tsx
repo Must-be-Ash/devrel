@@ -8,6 +8,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { Video } from "@remotion/media";
 
 interface BrowserFrameProps {
   screenshotPath: string;
@@ -155,14 +156,25 @@ export const BrowserFrame: React.FC<BrowserFrameProps> = ({
             transformOrigin: "center center",
           }}
         >
-          <Img
-            src={staticFile(screenshotPath)}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "contain",
-            }}
-          />
+          {screenshotPath.endsWith(".mp4") ? (
+            <Video
+              src={staticFile(screenshotPath)}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+              }}
+            />
+          ) : (
+            <Img
+              src={staticFile(screenshotPath)}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+              }}
+            />
+          )}
         </div>
       </div>
     </AbsoluteFill>
