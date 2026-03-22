@@ -38,7 +38,13 @@ Parse the invocation:
 npx devrel-toolkit doctor
 ```
 
-If any checks fail, run `npx devrel-toolkit setup`. If browser-use CLI is missing, it installs via `curl -fsSL https://browser-use.com/cli/install.sh | bash` (requires Python 3.11+). Do NOT use `pip install browser-use` — that is the Python SDK, not the CLI. If browser-use is unavailable, fall back to Playwright.
+If any checks fail, run `npx devrel-toolkit setup`.
+
+**Browser automation**: You MUST use `browser-use` CLI for all browser interactions (screenshots, clicks, element detection). Do NOT use Playwright, Puppeteer, or write custom browser scripts. browser-use CLI is the required tool. Only fall back to Playwright if browser-use is genuinely not installed and cannot be installed.
+
+**D-ID API key**: Check if `DID_API_KEY` is set (in `.env.local` or environment). If it is NOT set and the user did NOT pass `--no-avatar`:
+- Ask the user: "I need a D-ID API key to generate the avatar presenter. You can get one at https://studio.d-id.com. Would you like to provide your key, or should I skip the avatar and create a video without a presenter?"
+- Do NOT silently skip avatar generation. Always ask.
 
 ### Step 1: Understand the App
 
@@ -122,11 +128,7 @@ Save all screenshots and record bounding box data for each highlight and zoom ta
 
 **Important**: Use `browser-use state` after each navigation to see the current element indices. Element indices change between pages.
 
-**Playwright fallback**: If browser-use is unavailable or fails, use Playwright:
-```bash
-npx playwright open <url>
-# Use page.screenshot() and page.locator().boundingBox() for the same results
-```
+**Do NOT use Playwright, Puppeteer, or custom scripts.** Use `browser-use` CLI commands above. If a command fails, retry it — do not switch to a different browser automation tool.
 
 ### Step 4: Generate Avatar Clips
 
