@@ -1,6 +1,11 @@
 ---
 name: make-demo
-description: Create professional product demo videos with AI avatar presenter. Use when the user wants to record a product demo, create a video walkthrough, showcase app features, or generate a DevRel-style demo video. Analyzes your codebase, captures browser screenshots, generates D-ID avatar narration, and composites everything into a polished MP4. Triggers on: /make-demo, "make a demo video", "record a walkthrough", "create a product video", "showcase this app".
+description: >
+  Create professional product demo videos with AI avatar presenter.
+  Use when the user wants to record a product demo, create a video walkthrough,
+  showcase app features, or generate a DevRel-style demo video. Analyzes your
+  codebase, captures browser screenshots, generates D-ID avatar narration, and
+  composites everything into a polished MP4.
 ---
 
 # /make-demo — Product Demo Video Creator
