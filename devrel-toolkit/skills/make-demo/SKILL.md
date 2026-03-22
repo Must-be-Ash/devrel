@@ -40,11 +40,12 @@ npx devrel-toolkit doctor
 
 If any checks fail, run `npx devrel-toolkit setup`.
 
-**Browser automation**: You MUST use `browser-use` CLI for all browser interactions. If `browser-use` is not found, install it:
+**Browser automation**: You MUST use `browser-use` CLI for all browser interactions. It is a standalone CLI binary, NOT an npm package — run it directly as `browser-use`, never as `npx browser-use`. If `browser-use` is not found, install it:
 ```bash
 curl -fsSL https://browser-use.com/cli/install.sh | bash
+source ~/.zshrc   # or restart shell
 ```
-Do NOT fall back to Playwright. Do NOT write custom browser scripts. Install browser-use and use it.
+Do NOT fall back to Playwright. Do NOT write custom browser scripts. Do NOT use `npx browser-use`. Run `browser-use` directly.
 
 **D-ID API key**: Check if `DID_API_KEY` is set (in `.env.local` or environment). If it is NOT set and the user did NOT pass `--no-avatar`:
 - Ask the user: "I need a D-ID API key to generate the avatar presenter. You can get one at https://studio.d-id.com. Would you like to provide your key, or should I skip the avatar and create a video without a presenter?"
