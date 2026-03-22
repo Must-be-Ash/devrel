@@ -7,10 +7,18 @@
     "devrel-toolkit": "./dist/cli/index.js"
   },
   "main": "./dist/index.js",
+  "files": [
+    "dist",
+    "skills",
+    "remotion.config.ts"
+  ],
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "start": "node dist/cli/index.js"
+    "build": "tsc --skipLibCheck",
+    "dev": "tsc --watch --skipLibCheck",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/cli/index.js",
+    "postinstall": "node -e \"try{require('child_process').execSync('ffmpeg -version',{stdio:'ignore'})}catch{console.log('WARNING: FFmpeg not found. Install with: brew install ffmpeg (macOS) or apt install ffmpeg (Linux)')}\"",
+    "test": "vitest run"
   },
   "keywords": [
     "devrel",
@@ -25,8 +33,11 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@remotion/bundler": "^4.0.438",
     "@remotion/cli": "^4.0.438",
+    "@remotion/media": "^4.0.438",
     "@remotion/renderer": "^4.0.438",
+    "@remotion/transitions": "^4.0.438",
     "chalk": "^5.6.2",
     "commander": "^14.0.3",
     "dotenv": "^17.3.1",
@@ -37,6 +48,7 @@
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
   }
 }

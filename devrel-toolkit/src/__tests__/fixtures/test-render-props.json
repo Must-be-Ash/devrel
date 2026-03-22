@@ -1,0 +1,15 @@
+{
+  "resolution": { "width": 854, "height": 480 },
+  "fps": 15,
+  "scenes": [
+    {
+      "id": "test-scene",
+      "screenshotPath": "PLACEHOLDER",
+      "avatarDuration": 2,
+      "narration": "This is a test scene for the render integration test.",
+      "highlights": [],
+      "transition": "cut"
+    }
+  ],
+  "showSubtitles": true
+}

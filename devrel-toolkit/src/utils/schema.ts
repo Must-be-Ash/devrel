@@ -65,8 +65,16 @@ export const RenderZoomSchema = z.object({
   level: z.number(),
 });
 
+export const CursorPointSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+  timestamp: z.number(),
+});
+
 export const RenderSceneSchema = z.object({
   id: z.string(),
+  title: z.string().optional(),
+  url: z.string().optional(),
   screenshotPath: z.string(),
   avatarClipPath: z.string().optional(),
   avatarDuration: z.number(),
@@ -74,6 +82,14 @@ export const RenderSceneSchema = z.object({
   highlights: z.array(RenderHighlightSchema),
   zoom: RenderZoomSchema.optional(),
   transition: z.enum(["fade", "slide", "cut"]),
+  cursorPath: z.array(CursorPointSchema).optional(),
+});
+
+export const IntroOutroSchema = z.object({
+  title: z.string(),
+  subtitle: z.string().optional(),
+  logoPath: z.string().optional(),
+  durationSeconds: z.number().optional(),
 });
 
 export const RenderPropsSchema = z.object({
@@ -88,6 +104,9 @@ export const RenderPropsSchema = z.object({
     .optional(),
   avatarSize: z.number().optional(),
   showSubtitles: z.boolean().optional(),
+  intro: IntroOutroSchema.optional(),
+  outro: IntroOutroSchema.optional(),
+  backgroundMusic: z.string().optional(),
 });
 
 // ─── Inferred TypeScript types ───
@@ -101,4 +120,6 @@ export type DemoScript = z.infer<typeof DemoScriptSchema>;
 export type RenderHighlight = z.infer<typeof RenderHighlightSchema>;
 export type RenderZoom = z.infer<typeof RenderZoomSchema>;
 export type RenderScene = z.infer<typeof RenderSceneSchema>;
+export type CursorPoint = z.infer<typeof CursorPointSchema>;
+export type IntroOutro = z.infer<typeof IntroOutroSchema>;
 export type RenderProps = z.infer<typeof RenderPropsSchema>;
