@@ -2,6 +2,7 @@ import React from "react";
 import {
   AbsoluteFill,
   Img,
+  staticFile,
   interpolate,
   spring,
   useCurrentFrame,
@@ -53,7 +54,7 @@ export const IntroOutroCard: React.FC<IntroOutroProps> = ({ data, type, duration
       {/* Logo */}
       {data.logoPath && (
         <Img
-          src={data.logoPath}
+          src={staticFile(data.logoPath)}
           style={{
             width: 80,
             height: 80,

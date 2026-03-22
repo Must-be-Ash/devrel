@@ -2,6 +2,7 @@ import React from "react";
 import {
   AbsoluteFill,
   Img,
+  staticFile,
   interpolate,
   spring,
   useCurrentFrame,
@@ -152,7 +153,7 @@ export const BrowserFrame: React.FC<BrowserFrameProps> = ({
           }}
         >
           <Img
-            src={screenshotPath}
+            src={staticFile(screenshotPath)}
             style={{
               width: "100%",
               height: "100%",

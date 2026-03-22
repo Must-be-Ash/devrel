@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  staticFile,
   interpolate,
   spring,
   useCurrentFrame,
@@ -81,7 +82,7 @@ export const AvatarPiP: React.FC<AvatarPiPProps> = ({
       }}
     >
       <Video
-        src={clipPath}
+        src={staticFile(clipPath)}
         style={{
           width: "100%",
           height: "100%",

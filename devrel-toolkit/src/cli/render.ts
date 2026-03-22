@@ -1,7 +1,8 @@
 import type { Command } from "commander";
-import { readFileSync, existsSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { readFileSync, existsSync, mkdirSync, copyFileSync, rmSync } from "node:fs";
+import { resolve, dirname, basename, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { tmpdir } from "node:os";
 import { RenderPropsSchema } from "../utils/schema.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -72,12 +73,43 @@ async function doRender(opts: {
   const isTransparent = opts.transparent === true;
   const codec = isTransparent ? "prores" as const : (opts.codec ?? "h264") as "h264" | "h265";
 
-  console.log("\nBundling Remotion project...");
+  // Copy all referenced assets (screenshots, avatar clips, music) into a temp
+  // public directory. Remotion serves assets from publicDir — absolute filesystem
+  // paths don't work in the browser-based renderer.
+  const publicDir = join(tmpdir(), `devrel-toolkit-assets-${Date.now()}`);
+  mkdirSync(publicDir, { recursive: true });
 
-  // Bundle the compositor entry point
+  let fileCounter = 0;
+  function copyAsset(absolutePath: string): string {
+    const name = `${fileCounter++}-${basename(absolutePath)}`;
+    copyFileSync(absolutePath, join(publicDir, name));
+    return name; // just the filename — Remotion resolves it from publicDir
+  }
+
+  console.log("\nCopying assets...");
+  for (const scene of inputProps.scenes) {
+    scene.screenshotPath = copyAsset(scene.screenshotPath);
+    if (scene.avatarClipPath) {
+      scene.avatarClipPath = copyAsset(scene.avatarClipPath);
+    }
+  }
+  if (inputProps.backgroundMusic) {
+    inputProps.backgroundMusic = copyAsset(inputProps.backgroundMusic);
+  }
+  if (inputProps.intro?.logoPath) {
+    inputProps.intro.logoPath = copyAsset(inputProps.intro.logoPath);
+  }
+  if (inputProps.outro?.logoPath) {
+    inputProps.outro.logoPath = copyAsset(inputProps.outro.logoPath);
+  }
+
+  console.log("Bundling Remotion project...");
+
+  // Bundle the compositor entry point with the temp publicDir
   const entryPoint = resolve(__dirname, "../compositor/index.js");
   const bundleLocation = await bundle({
     entryPoint,
+    publicDir,
     webpackOverride: (config) => config,
   });
 
@@ -122,6 +154,14 @@ async function doRender(opts: {
   });
 
   console.log(`\r  Rendering: 100%`);
+
+  // Clean up temp assets directory
+  try {
+    rmSync(publicDir, { recursive: true, force: true });
+  } catch {
+    // Ignore cleanup errors
+  }
+
   console.log(`\nOutput: ${outputPath}\n`);
 }
 

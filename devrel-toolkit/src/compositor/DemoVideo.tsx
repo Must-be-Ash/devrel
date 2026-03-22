@@ -1,5 +1,5 @@
 import React from "react";
-import { AbsoluteFill, Sequence, interpolate, useVideoConfig } from "remotion";
+import { AbsoluteFill, Sequence, staticFile, interpolate, useVideoConfig } from "remotion";
 import { Audio } from "@remotion/media";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
@@ -187,7 +187,7 @@ const BackgroundMusic: React.FC<{
 
   return (
     <Audio
-      src={src}
+      src={staticFile(src)}
       volume={(f) =>
         interpolate(f, [0, fadeIn, total - fadeOut, total], [0, 0.15, 0.15, 0], {
           extrapolateLeft: "clamp",
