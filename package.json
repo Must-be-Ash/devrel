@@ -1,0 +1,6 @@
+{
+  "name": "devrel-agent",
+  "private": true,
+  "version": "0.1.0",
+  "description": "DevRel Agent - Create product demo videos from a single prompt"
+}
