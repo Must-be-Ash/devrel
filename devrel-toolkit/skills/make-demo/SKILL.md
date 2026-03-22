@@ -65,8 +65,10 @@ Based on the user's prompt and your codebase knowledge, plan the demo:
 - Break into **3–8 logical scenes** (e.g., "Landing page overview", "Sign up flow", "Dashboard tour")
 - Write **natural, conversational narration** for each scene (30–60 words per scene)
 - Determine **navigation steps** for each scene (which pages to visit, what to click, what to type)
-- Identify **elements to highlight** (buttons, forms, charts) and **zoom targets**
+- Identify **zoom targets** — the element being discussed should fill the frame
 - Choose **transitions** between scenes (`fade` for most, `slide` for page changes, `cut` for quick switches)
+
+**How to direct viewer attention**: Use **zoom** as the primary tool, not highlight overlays. Zoom into the element the avatar is talking about so it fills most of the frame. The viewer naturally looks at what's large and centered. Only use highlight overlays (box, glow) sparingly for small elements that need extra emphasis even when zoomed in. Most scenes should have a zoom and NO highlights.
 
 Produce a `demo-script.json` file:
 
@@ -86,9 +88,7 @@ Produce a `demo-script.json` file:
         { "action": "goto", "target": "http://localhost:3000" },
         { "action": "wait", "value": "2000" }
       ],
-      "highlights": [
-        { "selector": ".cta-button", "style": "glow", "color": "#4A90D9" }
-      ],
+      "highlights": [],
       "zoom": { "selector": ".hero-section", "level": 1.5 },
       "transition": "fade"
     }
@@ -124,7 +124,13 @@ browser-use screenshot --full ./demo-work/screenshots/scene-<id>.png  # full pag
 browser-use get bbox <index>               # Returns { x, y, width, height }
 ```
 
-Save all screenshots and record bounding box data for each highlight and zoom target.
+Save all screenshots and record bounding box data for zoom targets.
+
+**CRITICAL — Bounding boxes**: You MUST use `browser-use get bbox <index>` to get exact bounding box coordinates for every zoom target. NEVER guess or estimate bbox values. Wrong coordinates cause the zoom to frame empty space or cut off content. Run `browser-use state` to find the element index, then `browser-use get bbox <index>` to get the precise `{ x, y, width, height }`.
+
+**Zoom framing**: The zoom bbox should include some padding around the target element (add ~50px on each side) so content isn't clipped at the edges. The zoom `level` controls magnification — use 1.3-1.5 for sections, 1.8-2.0 for small elements.
+
+**Sync zoom with narration**: Each scene's zoom should target what the avatar is currently talking about. If the avatar says "the server checks the balance", the zoom should be on the balance check element, not the whole page.
 
 **Important**: Use `browser-use state` after each navigation to see the current element indices. Element indices change between pages.
 
@@ -172,16 +178,10 @@ Combine screenshots, avatar clips, bounding boxes, and timing into `render-props
       "avatarClipPath": "/absolute/path/to/demo-work/avatars/scene-1-landing.mp4",
       "avatarDuration": 4.5,
       "narration": "Welcome to our platform. Let me show you how easy it is to get started.",
-      "highlights": [
-        {
-          "bbox": { "x": 500, "y": 300, "width": 200, "height": 50 },
-          "style": "glow",
-          "color": "#4A90D9"
-        }
-      ],
+      "highlights": [],
       "zoom": {
-        "bbox": { "x": 200, "y": 100, "width": 800, "height": 400 },
-        "level": 1.5
+        "bbox": { "x": 150, "y": 80, "width": 900, "height": 500 },
+        "level": 1.4
       },
       "transition": "fade"
     }
