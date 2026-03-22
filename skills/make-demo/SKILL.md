@@ -62,13 +62,22 @@ If any checks fail, run `npx devrel-toolkit setup`.
 
 Based on the user's prompt and your codebase knowledge, plan the demo:
 
-- Break into **3–8 logical scenes** (e.g., "Landing page overview", "Sign up flow", "Dashboard tour")
+- Break into **3–8 logical scenes**
 - Write **natural, conversational narration** for each scene (30–60 words per scene)
-- Determine **navigation steps** for each scene (which pages to visit, what to click, what to type)
-- Identify **zoom targets** — the element being discussed should fill the frame
+- For each scene, decide the **scene type**:
+  - **App footage** — screenshot of the actual app UI. Use for showing real product screens.
+  - **Custom animation** — a Remotion animation you write as a React component. Use for explaining concepts, flows, diagrams, comparisons, or anything that's better communicated with motion graphics than a static screenshot.
 - Choose **transitions** between scenes (`fade` for most, `slide` for page changes, `cut` for quick switches)
 
-**How to direct viewer attention**: Use **zoom** as the primary tool, not highlight overlays. Zoom into the element the avatar is talking about so it fills most of the frame. The viewer naturally looks at what's large and centered. Only use highlight overlays (box, glow) sparingly for small elements that need extra emphasis even when zoomed in. Most scenes should have a zoom and NO highlights.
+**Scene-level mixing**: The best demos interleave app footage with custom animations. For example:
+- Scene 1 (app): Show the full /demo page — the real UI
+- Scene 2 (animation): Animated flow diagram showing Client → Server → Solana → 200 OK with arrows and labels animating in
+- Scene 3 (app): Show the actual 200 OK response on screen
+- Scene 4 (animation): Summary card with key takeaways
+
+**For app footage scenes**: Use browser-use to navigate and screenshot (Step 3). Use zoom to frame the relevant area — get precise bbox with `browser-use get bbox`. Avoid highlight overlays unless absolutely needed.
+
+**For custom animation scenes**: Write a Remotion React component (Step 3b). You have the Remotion best-practices skill installed — use `interpolate()`, `spring()`, `useCurrentFrame()`. Render it to an MP4 clip, then use that clip as the scene's screenshot in render-props.
 
 Produce a `demo-script.json` file:
 
@@ -135,6 +144,43 @@ Save all screenshots and record bounding box data for zoom targets.
 **Important**: Use `browser-use state` after each navigation to see the current element indices. Element indices change between pages.
 
 **Do NOT use Playwright, Puppeteer, or custom scripts.** Use `browser-use` CLI commands above. If a command fails, retry it — do not switch to a different browser automation tool.
+
+### Step 3b: Create Custom Animation Scenes (if planned)
+
+For scenes that need animated explainers, flow diagrams, or motion graphics instead of static screenshots:
+
+1. Create a temporary Remotion project in the working directory:
+   ```bash
+   cd ./demo-work
+   npx create-video@latest --blank --no-tailwind --no-install custom-animations
+   cd custom-animations && npm install
+   ```
+
+2. Write a React component for each animation scene. You have the Remotion best-practices skill — use it. Example for a flow diagram:
+   ```tsx
+   // src/FlowDiagram.tsx
+   import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
+
+   export const FlowDiagram: React.FC = () => {
+     const frame = useCurrentFrame();
+     const { fps } = useVideoConfig();
+     // Animate arrows, labels, flow steps using interpolate/spring
+     // ...
+   };
+   ```
+
+3. Register it as a composition in `src/Root.tsx` and render to MP4:
+   ```bash
+   npx remotion render FlowDiagram ./demo-work/screenshots/scene-flow-diagram.mp4
+   ```
+
+4. Use the rendered MP4 as the `screenshotPath` for that scene in render-props.json. The toolkit will include it in the final video alongside the app screenshot scenes.
+
+**Tips for custom animations**:
+- Match the resolution (1920x1080) and dark background (#0a0a0a) for consistency
+- Keep animations 3-8 seconds — they should complement the narration, not replace it
+- Use the app's color scheme for visual consistency
+- Prefer simple, clean motion graphics over complex 3D or particle effects
 
 ### Step 4: Generate Avatar Clips
 
