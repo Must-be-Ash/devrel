@@ -168,31 +168,60 @@ For scenes that need animated explainers, flow diagrams, or motion graphics inst
    cd custom-animations && npm install
    ```
 
-2. Write a React component for each animation scene. You have the Remotion best-practices skill — use it. Example for a flow diagram:
+2. Write a React component for each animation scene. **Animations MUST have motion** — elements appearing one by one, arrows drawing in, labels fading in sequentially. A static diagram rendered as a video is NOT an animation. Every element should animate in using `spring()` or `interpolate()` with staggered delays.
+
+   Example — a flow diagram where each step appears one after another:
    ```tsx
-   // src/FlowDiagram.tsx
-   import { AbsoluteFill, useCurrentFrame, useVideoConfig, interpolate, spring } from "remotion";
+   import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
 
    export const FlowDiagram: React.FC = () => {
      const frame = useCurrentFrame();
      const { fps } = useVideoConfig();
-     // Animate arrows, labels, flow steps using interpolate/spring
-     // ...
+
+     // Each step appears sequentially with spring animation
+     const step1 = spring({ frame, fps, config: { damping: 200 } });
+     const step2 = spring({ frame: frame - 20, fps, config: { damping: 200 } });
+     const step3 = spring({ frame: frame - 40, fps, config: { damping: 200 } });
+     const step4 = spring({ frame: frame - 60, fps, config: { damping: 200 } });
+
+     // Arrow draws in between steps
+     const arrow1Width = interpolate(step2, [0, 1], [0, 300]);
+     const arrow2Width = interpolate(step3, [0, 1], [0, 300]);
+
+     return (
+       <AbsoluteFill style={{ backgroundColor: "#0a0a0a", padding: 80 }}>
+         {/* Step 1 fades/scales in */}
+         <div style={{ opacity: step1, transform: `scale(${step1})` }}>
+           Client → GET /api/random
+         </div>
+         {/* Arrow draws from left to right */}
+         <div style={{ width: arrow1Width, height: 2, backgroundColor: "#4A90D9" }} />
+         {/* Step 2 appears after arrow */}
+         <div style={{ opacity: step2, transform: `translateY(${(1-step2)*20}px)` }}>
+           Server → 402 + config
+         </div>
+         {/* etc. — each step has a staggered delay */}
+       </AbsoluteFill>
+     );
    };
    ```
+
+   The key pattern: `spring({ frame: frame - DELAY, fps })` where DELAY increases for each element. This creates the sequential reveal effect.
 
 3. Register it as a composition in `src/Root.tsx` and render to MP4:
    ```bash
    npx remotion render FlowDiagram ./demo-work/screenshots/scene-flow-diagram.mp4
    ```
 
-4. Use the rendered MP4 as the `screenshotPath` for that scene in render-props.json. The toolkit will include it in the final video alongside the app screenshot scenes.
+4. Use the rendered MP4 as the `screenshotPath` for that scene in render-props.json.
 
-**Tips for custom animations**:
-- Match the resolution (1920x1080) and dark background (#0a0a0a) for consistency
-- Keep animations 3-8 seconds — they should complement the narration, not replace it
+**Animation rules**:
+- **Every element must animate in** — nothing should just "be there" from frame 1
+- Use staggered delays (20-30 frames apart) so elements appear one by one
+- Arrows should draw in (width/height animating from 0 to full)
+- Labels should fade + slide in (opacity 0→1 + translateY)
+- Match the resolution (1920x1080) and dark background (#0a0a0a)
 - Use the app's color scheme for visual consistency
-- Prefer simple, clean motion graphics over complex 3D or particle effects
 
 ### Step 4: Generate Avatar Video
 
