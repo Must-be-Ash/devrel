@@ -229,32 +229,9 @@ Skip this step if `--no-avatar` or `--preview` was specified.
 
 Generate **one single continuous avatar video** with all the narration combined. Do NOT generate separate clips per scene — separate clips create jarring cuts between sentences. One continuous video gives natural speech flow.
 
-**D-ID has two APIs — try Expressives first, fall back to Talks:**
+**Use the D-ID Talks API** (works on all plans — Studio Lite, Pro, and API plans):
 
-**Option A: Expressives API (V4 avatars — via toolkit) — preferred**
-
-1. Use this avatar by default: `public_oliver_sport_elegant@avt_VVIQYg` (Oliver — professional male presenter). Concatenate all narrations into one script:
-   ```json
-   [
-     {
-       "id": "full-narration",
-       "narration": "Welcome to our platform. ... And that's it — you're ready to go.",
-       "avatarId": "public_oliver_sport_elegant@avt_VVIQYg"
-     }
-   ]
-   ```
-2. Generate:
-   ```bash
-   npx devrel-toolkit d-id generate \
-     --script ./demo-work/avatar-script.json \
-     --output ./demo-work/avatars/ \
-     --avatar "public_oliver_sport_elegant@avt_VVIQYg"
-   ```
-3. If that avatar fails, list available ones with `npx devrel-toolkit d-id avatars` and pick another.
-
-**Option B: Talks API (works on all plans including free — via curl)**
-
-If Expressives fails (subscription error, no avatars available), use the Talks API directly. It takes a source photo URL instead of an avatar ID:
+Concatenate all narrations into one string and generate via curl:
 
 ```bash
 DID_KEY=$(grep DID_API_KEY .env.local | cut -d= -f2)
