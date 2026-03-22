@@ -159,7 +159,13 @@ Save all screenshots and record bounding box data for zoom targets.
 
 ### Step 3b: Create Custom Animation Scenes (if planned)
 
-For scenes that need animated explainers, flow diagrams, or motion graphics instead of static screenshots:
+For scenes that need animated explainers, flow diagrams, or motion graphics instead of static screenshots.
+
+**BEFORE writing any Remotion code, load the `remotion-best-practices` skill rules.** Read the rules for `timing`, `animations`, and `sequencing` — they contain the exact patterns for spring animations, interpolation, and staggered reveals. The key rules:
+- ALL animations MUST be driven by `useCurrentFrame()` — CSS animations are FORBIDDEN
+- Use `spring()` with staggered delays for sequential reveals: `spring({ frame: frame - 20, fps })`
+- Use `interpolate()` to map spring values to visual properties (opacity, translateY, width)
+- Every element must animate in over time — nothing should be visible at frame 0
 
 1. Create a temporary Remotion project in the working directory:
    ```bash
@@ -208,10 +214,16 @@ For scenes that need animated explainers, flow diagrams, or motion graphics inst
 
    The key pattern: `spring({ frame: frame - DELAY, fps })` where DELAY increases for each element. This creates the sequential reveal effect.
 
-3. Register it as a composition in `src/Root.tsx` and render to MP4:
+3. Register it as a composition in `src/Root.tsx`. The `durationInFrames` MUST be long enough for all animations to complete (e.g., if you have 5 elements with 20-frame stagger, you need at least 100+ frames):
+   ```tsx
+   <Composition id="FlowDiagram" component={FlowDiagram}
+     durationInFrames={180} fps={30} width={1920} height={1080} />
+   ```
+   Then render to MP4:
    ```bash
    npx remotion render FlowDiagram ./demo-work/screenshots/scene-flow-diagram.mp4
    ```
+   **Test first**: run `npx remotion studio` and scrub through the timeline to verify elements animate in sequentially. If everything appears at once, your springs have no delays or your duration is too short.
 
 4. Use the rendered MP4 as the `screenshotPath` for that scene in render-props.json.
 
@@ -229,9 +241,32 @@ Skip this step if `--no-avatar` or `--preview` was specified.
 
 Generate **one single continuous avatar video** with all the narration combined. Do NOT generate separate clips per scene — separate clips create jarring cuts between sentences. One continuous video gives natural speech flow.
 
-**Use the D-ID Talks API** (works on all plans — Studio Lite, Pro, and API plans):
+**D-ID has two APIs — try Expressives first, fall back to Talks:**
 
-Concatenate all narrations into one string and generate via curl:
+**Option A: Expressives API (V4 avatars — via toolkit) — preferred**
+
+1. Use this avatar by default: `public_oliver_sport_elegant@avt_VVIQYg` (Oliver — professional male presenter). Concatenate all narrations into one script:
+   ```json
+   [
+     {
+       "id": "full-narration",
+       "narration": "Welcome to our platform. ... And that's it — you're ready to go.",
+       "avatarId": "public_oliver_sport_elegant@avt_VVIQYg"
+     }
+   ]
+   ```
+2. Generate:
+   ```bash
+   npx devrel-toolkit d-id generate \
+     --script ./demo-work/avatar-script.json \
+     --output ./demo-work/avatars/ \
+     --avatar "public_oliver_sport_elegant@avt_VVIQYg"
+   ```
+3. If that avatar fails, list available ones with `npx devrel-toolkit d-id avatars` and pick another.
+
+**Option B: Talks API (works on all plans including free — via curl)**
+
+If Expressives fails (subscription error, no avatars available), use the Talks API directly. It takes a source photo URL instead of an avatar ID:
 
 ```bash
 DID_KEY=$(grep DID_API_KEY .env.local | cut -d= -f2)
