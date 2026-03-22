@@ -161,11 +161,17 @@ Save all screenshots and record bounding box data for zoom targets.
 
 For scenes that need animated explainers, flow diagrams, or motion graphics instead of static screenshots.
 
-**BEFORE writing any Remotion code, load the `remotion-best-practices` skill rules.** Read the rules for `timing`, `animations`, and `sequencing` — they contain the exact patterns for spring animations, interpolation, and staggered reveals. The key rules:
-- ALL animations MUST be driven by `useCurrentFrame()` — CSS animations are FORBIDDEN
-- Use `spring()` with staggered delays for sequential reveals: `spring({ frame: frame - 20, fps })`
-- Use `interpolate()` to map spring values to visual properties (opacity, translateY, width)
-- Every element must animate in over time — nothing should be visible at frame 0
+**BEFORE writing any Remotion code:**
+1. Read `references/animation-example.md` — it has a complete, working animated component you can copy and adapt. Use the `useStagger` helper pattern from that file.
+2. Load the `remotion-best-practices` skill rules for `timing` and `animations`.
+
+**Non-negotiable animation rules:**
+- You MUST call `useCurrentFrame()` in every animation component — without it, nothing moves
+- Use `spring({ frame: frame - DELAY, fps })` with increasing DELAY for sequential reveals
+- At frame 0, NOTHING should be visible — every element starts at opacity 0
+- Connecting lines must animate their width/height from 0 to full
+- Strikethroughs must draw across from left to right
+- Set `durationInFrames` to at least `(number_of_elements × 25) + 60`
 
 1. Create a temporary Remotion project in the working directory:
    ```bash
@@ -174,45 +180,7 @@ For scenes that need animated explainers, flow diagrams, or motion graphics inst
    cd custom-animations && npm install
    ```
 
-2. Write a React component for each animation scene. **Animations MUST have motion** — elements appearing one by one, arrows drawing in, labels fading in sequentially. A static diagram rendered as a video is NOT an animation. Every element should animate in using `spring()` or `interpolate()` with staggered delays.
-
-   Example — a flow diagram where each step appears one after another:
-   ```tsx
-   import { AbsoluteFill, useCurrentFrame, useVideoConfig, spring, interpolate } from "remotion";
-
-   export const FlowDiagram: React.FC = () => {
-     const frame = useCurrentFrame();
-     const { fps } = useVideoConfig();
-
-     // Each step appears sequentially with spring animation
-     const step1 = spring({ frame, fps, config: { damping: 200 } });
-     const step2 = spring({ frame: frame - 20, fps, config: { damping: 200 } });
-     const step3 = spring({ frame: frame - 40, fps, config: { damping: 200 } });
-     const step4 = spring({ frame: frame - 60, fps, config: { damping: 200 } });
-
-     // Arrow draws in between steps
-     const arrow1Width = interpolate(step2, [0, 1], [0, 300]);
-     const arrow2Width = interpolate(step3, [0, 1], [0, 300]);
-
-     return (
-       <AbsoluteFill style={{ backgroundColor: "#0a0a0a", padding: 80 }}>
-         {/* Step 1 fades/scales in */}
-         <div style={{ opacity: step1, transform: `scale(${step1})` }}>
-           Client → GET /api/random
-         </div>
-         {/* Arrow draws from left to right */}
-         <div style={{ width: arrow1Width, height: 2, backgroundColor: "#4A90D9" }} />
-         {/* Step 2 appears after arrow */}
-         <div style={{ opacity: step2, transform: `translateY(${(1-step2)*20}px)` }}>
-           Server → 402 + config
-         </div>
-         {/* etc. — each step has a staggered delay */}
-       </AbsoluteFill>
-     );
-   };
-   ```
-
-   The key pattern: `spring({ frame: frame - DELAY, fps })` where DELAY increases for each element. This creates the sequential reveal effect.
+2. Read `references/animation-example.md` and use it as your starting template. Adapt the content to match your scenes. The file has a complete `useStagger` helper and working examples for flow diagrams and strikethrough animations.
 
 3. Register it as a composition in `src/Root.tsx`. The `durationInFrames` MUST be long enough for all animations to complete (e.g., if you have 5 elements with 20-frame stagger, you need at least 100+ frames):
    ```tsx
