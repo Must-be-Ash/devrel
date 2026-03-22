@@ -111,24 +111,33 @@ mkdir -p ./demo-work-$(date +%s)/screenshots
 mkdir -p ./demo-work-$(date +%s)/avatars
 ```
 
-**Always use `--headed` mode** so both you and the user can see what's happening:
+Use `~/.browser-use-env/bin/browser-use` (full path) if `browser-use` is not in PATH.
+
+**First command — open the URL** (use a long timeout, the first browser launch is slow):
+```bash
+~/.browser-use-env/bin/browser-use open <url>
+```
+
+Do NOT use `--headed` or `--profile` flags — headed mode times out in Claude Code's bash, and `--profile` causes macOS permission errors on Chrome cookies. Use plain headless mode. The built-in Chromium works fine for screenshots.
+
+After the first `open`, subsequent commands are fast (~50ms) because the daemon stays alive:
 
 ```bash
-browser-use --headed open <url>
-
-# For each scene, execute navigation steps:
-browser-use state                          # See available elements
+browser-use state                          # See available elements with indices
 browser-use click <index>                  # Click elements
 browser-use input <index> "text"           # Fill forms
 browser-use scroll down                    # Scroll
 browser-use wait text "loaded"             # Wait for content
 
-# Take screenshot — use viewport for above-the-fold, --full for long pages
+# Take screenshot
 browser-use screenshot ./demo-work/screenshots/scene-<id>.png
 browser-use screenshot --full ./demo-work/screenshots/scene-<id>.png  # full page
 
-# Get bounding boxes for highlights/zoom targets
+# Get bounding boxes for zoom targets
 browser-use get bbox <index>               # Returns { x, y, width, height }
+
+# When done
+browser-use close
 ```
 
 Save all screenshots and record bounding box data for zoom targets.
