@@ -133,9 +133,8 @@ browser-use input <index> "text"           # Fill forms
 browser-use scroll down                    # Scroll
 browser-use wait text "loaded"             # Wait for content
 
-# Take screenshot
+# Take screenshot — viewport only, NOT full page
 browser-use screenshot ./demo-work/screenshots/scene-<id>.png
-browser-use screenshot --full ./demo-work/screenshots/scene-<id>.png  # full page
 
 # Get bounding boxes for zoom targets
 browser-use get bbox <index>               # Returns { x, y, width, height }
@@ -145,6 +144,8 @@ browser-use close
 ```
 
 Save all screenshots and record bounding box data for zoom targets.
+
+**Screenshots must show content, not empty space.** Before taking each screenshot, scroll to the section you want to capture so it fills the viewport. If the page has a hero at the top, take the screenshot there. If you need to show a section further down, `browser-use scroll down` first until that section is visible, then screenshot. Never capture black/empty space above or below the content — the video frame should be filled with the actual UI.
 
 **CRITICAL — Bounding boxes**: You MUST use `browser-use get bbox <index>` to get exact bounding box coordinates for every zoom target. NEVER guess or estimate bbox values. Wrong coordinates cause the zoom to frame empty space or cut off content. Run `browser-use state` to find the element index, then `browser-use get bbox <index>` to get the precise `{ x, y, width, height }`.
 
@@ -201,29 +202,26 @@ Generate **one single continuous avatar video** with all the narration combined.
 
 **D-ID has two APIs — try Expressives first, fall back to Talks:**
 
-**Option A: Expressives API (V4 avatars with emotions — via toolkit)**
+**Option A: Expressives API (V4 avatars — via toolkit) — preferred**
 
-1. List available avatars:
-   ```bash
-   npx devrel-toolkit d-id avatars
-   ```
-2. Pick a **casual** avatar (not "elegant" — those require a higher plan). Concatenate all narrations into one script:
+1. Use this avatar by default: `public_oliver_sport_elegant@avt_VVIQYg` (Oliver — professional male presenter). Concatenate all narrations into one script:
    ```json
    [
      {
        "id": "full-narration",
        "narration": "Welcome to our platform. ... And that's it — you're ready to go.",
-       "avatarId": "<casual-avatar-id>"
+       "avatarId": "public_oliver_sport_elegant@avt_VVIQYg"
      }
    ]
    ```
-3. Generate:
+2. Generate:
    ```bash
    npx devrel-toolkit d-id generate \
      --script ./demo-work/avatar-script.json \
      --output ./demo-work/avatars/ \
-     --avatar "<avatar-id>"
+     --avatar "public_oliver_sport_elegant@avt_VVIQYg"
    ```
+3. If that avatar fails, list available ones with `npx devrel-toolkit d-id avatars` and pick another.
 
 **Option B: Talks API (works on all plans including free — via curl)**
 
