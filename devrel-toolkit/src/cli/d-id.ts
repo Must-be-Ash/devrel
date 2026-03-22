@@ -25,23 +25,25 @@ export function registerDidCommand(program: Command): void {
       }
 
       // Print table header
-      const idWidth = 40;
+      const idWidth = 45;
       const nameWidth = 30;
       console.log(
-        `${"AVATAR ID".padEnd(idWidth)}  ${"NAME".padEnd(nameWidth)}  SENTIMENTS`
+        `${"PRESENTER ID".padEnd(idWidth)}  ${"NAME".padEnd(nameWidth)}  GENDER`
       );
-      console.log(`${"-".repeat(idWidth)}  ${"-".repeat(nameWidth)}  ${"-".repeat(30)}`);
+      console.log(`${"-".repeat(idWidth)}  ${"-".repeat(nameWidth)}  ${"-".repeat(10)}`);
 
+      // Deduplicate by name (many variants per presenter)
+      const seen = new Set<string>();
       for (const avatar of avatars) {
-        const sentimentNames = avatar.sentiments
-          ?.map((s) => s.name || s.id)
-          .join(", ") ?? "—";
-        const id = (avatar.id ?? "").padEnd(idWidth);
-        const name = (avatar.name ?? "unknown").padEnd(nameWidth);
-        console.log(`${id}  ${name}  ${sentimentNames}`);
+        const name = avatar.name ?? "unknown";
+        if (seen.has(name)) continue;
+        seen.add(name);
+        const id = (avatar.presenter_id ?? avatar.id ?? "").padEnd(idWidth);
+        const gender = avatar.gender ?? "—";
+        console.log(`${id}  ${name.padEnd(nameWidth)}  ${gender}`);
       }
 
-      console.log(`\n${avatars.length} avatar(s) found.\n`);
+      console.log(`\n${seen.size} presenter(s) found (${avatars.length} total variants).\n`);
     });
 
   did

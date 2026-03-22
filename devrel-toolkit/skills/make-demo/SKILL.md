@@ -241,71 +241,31 @@ Skip this step if `--no-avatar` or `--preview` was specified.
 
 Generate **one single continuous avatar video** with all the narration combined. Do NOT generate separate clips per scene — separate clips create jarring cuts between sentences. One continuous video gives natural speech flow.
 
-**D-ID has two APIs — try Expressives first, fall back to Talks:**
+**Use the D-ID Clips API** via the toolkit. It has 136+ professional presenters and works on all paid plans.
 
-**Option A: Expressives API (V4 avatars — via toolkit) — preferred**
+1. List available presenters:
+   ```bash
+   npx devrel-toolkit d-id avatars
+   ```
 
-1. Use this avatar by default: `public_oliver_sport_elegant@avt_VVIQYg` (Oliver — professional male presenter). Concatenate all narrations into one script:
+2. Pick a presenter. Default: `v2_public_Adam@0GLJgELXjc` (Adam — professional male). Concatenate all narrations into one script:
    ```json
    [
      {
        "id": "full-narration",
-       "narration": "Welcome to our platform. ... And that's it — you're ready to go.",
-       "avatarId": "public_oliver_sport_elegant@avt_VVIQYg"
+       "narration": "Full concatenated narration text here...",
+       "avatarId": "v2_public_Adam@0GLJgELXjc"
      }
    ]
    ```
-2. Generate:
+
+3. Generate:
    ```bash
    npx devrel-toolkit d-id generate \
      --script ./demo-work/avatar-script.json \
      --output ./demo-work/avatars/ \
-     --avatar "public_oliver_sport_elegant@avt_VVIQYg"
+     --avatar "v2_public_Adam@0GLJgELXjc"
    ```
-3. If that avatar fails, list available ones with `npx devrel-toolkit d-id avatars` and pick another.
-
-**Option B: Talks API (works on all plans including free — via curl)**
-
-If Expressives fails (subscription error, no avatars available), use the Talks API directly. It takes a source photo URL instead of an avatar ID:
-
-```bash
-DID_KEY=$(grep DID_API_KEY .env.local | cut -d= -f2)
-
-# Concatenate all narration into one string
-NARRATION="Welcome to our platform. ... And that's it."
-
-# Create the talk
-RESPONSE=$(curl -s -X POST "https://api.d-id.com/talks" \
-  -H "Authorization: Basic $DID_KEY" \
-  -H "Content-Type: application/json" \
-  -d "{
-    \"source_url\": \"https://d-id-public-bucket.s3.us-west-2.amazonaws.com/alice.jpg\",
-    \"script\": {
-      \"type\": \"text\",
-      \"input\": \"$NARRATION\",
-      \"provider\": { \"type\": \"microsoft\", \"voice_id\": \"en-US-JennyNeural\" }
-    }
-  }")
-
-TALK_ID=$(echo "$RESPONSE" | python3 -c "import json,sys; print(json.load(sys.stdin)['id'])")
-
-# Poll until done, then download
-for i in $(seq 1 60); do
-  RESULT=$(curl -s "https://api.d-id.com/talks/$TALK_ID" -H "Authorization: Basic $DID_KEY")
-  STATUS=$(echo "$RESULT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('status','unknown'))")
-  if [ "$STATUS" = "done" ]; then
-    RESULT_URL=$(echo "$RESULT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('result_url',''))")
-    curl -sL "$RESULT_URL" -o ./demo-work/avatars/full-narration.mp4
-    echo "Downloaded avatar video!"
-    break
-  fi
-  if [ "$STATUS" = "error" ] || [ "$STATUS" = "rejected" ]; then
-    echo "FAILED: $RESULT"
-    break
-  fi
-  sleep 5
-done
-```
 
 4. This takes 1–5 minutes. The output includes a `manifest.json` with the clip path and total duration. Use this single avatar clip as `avatarClipPath` for the **first scene only** — the PiP will play continuously across all scenes.
 

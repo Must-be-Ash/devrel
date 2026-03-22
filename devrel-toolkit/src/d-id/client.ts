@@ -6,8 +6,10 @@ const BASE_URL = "https://api.d-id.com";
 
 export interface DIDAvatar {
   id: string;
+  presenter_id?: string;
   name: string;
-  sentiments: { id: string; name: string }[];
+  gender?: string;
+  sentiments?: { id: string; name: string }[];
 }
 
 export interface CreateVideoOptions {
@@ -117,25 +119,22 @@ export class DIDClient {
   }
 
   async listAvatars(): Promise<DIDAvatar[]> {
-    const data = await this.request<{ avatars: DIDAvatar[] }>(
+    // /clips/presenters returns pre-built presenters available on all paid plans
+    const data = await this.request<{ presenters: DIDAvatar[] }>(
       "GET",
-      "/expressives/avatars"
+      "/clips/presenters"
     );
-    return data.avatars ?? (data as unknown as DIDAvatar[]);
+    return data.presenters ?? (data as unknown as DIDAvatar[]);
   }
 
   async createVideo(options: CreateVideoOptions): Promise<{ id: string; status: string }> {
     const body: Record<string, unknown> = {
-      avatar_id: options.avatarId,
+      presenter_id: options.avatarId,
       script: {
         type: "text",
         input: options.script,
       },
     };
-
-    if (options.sentimentId) {
-      body.sentiment_id = options.sentimentId;
-    }
     if (options.config) {
       body.config = options.config;
     }
@@ -143,11 +142,11 @@ export class DIDClient {
       body.background = options.background;
     }
 
-    return this.request<{ id: string; status: string }>("POST", "/expressives", body);
+    return this.request<{ id: string; status: string }>("POST", "/clips", body);
   }
 
   async getVideo(id: string): Promise<VideoStatus> {
-    return this.request<VideoStatus>("GET", `/expressives/${id}`, undefined, 1);
+    return this.request<VideoStatus>("GET", `/clips/${id}`, undefined, 1);
   }
 
   async pollUntilDone(
