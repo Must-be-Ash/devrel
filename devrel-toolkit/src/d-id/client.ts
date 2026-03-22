@@ -15,6 +15,7 @@ export interface DIDAvatar {
 export interface CreateVideoOptions {
   avatarId: string;
   sentimentId?: string;
+  voiceId?: string;
   script: string;
   config?: {
     result_format?: "mp4" | "mov" | "webm";
@@ -128,12 +129,20 @@ export class DIDClient {
   }
 
   async createVideo(options: CreateVideoOptions): Promise<{ id: string; status: string }> {
+    const scriptPayload: Record<string, unknown> = {
+      type: "text",
+      input: options.script,
+    };
+
+    // Default to male voice (en-US-GuyNeural) to match default male presenter (Adam)
+    scriptPayload.provider = {
+      type: "microsoft",
+      voice_id: options.voiceId ?? "en-US-GuyNeural",
+    };
+
     const body: Record<string, unknown> = {
       presenter_id: options.avatarId,
-      script: {
-        type: "text",
-        input: options.script,
-      },
+      script: scriptPayload,
     };
     if (options.config) {
       body.config = options.config;
