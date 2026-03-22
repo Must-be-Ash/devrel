@@ -28,8 +28,8 @@ export const BrowserFrame: React.FC<BrowserFrameProps> = ({
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
 
-  // Chrome bar height
-  const chromeHeight = 40;
+  // Chrome bar height (0 when chrome is hidden)
+  const chromeHeight = 0;
 
   // Calculate zoom animation
   let scale = 1;
@@ -77,10 +77,13 @@ export const BrowserFrame: React.FC<BrowserFrameProps> = ({
     });
   }
 
+  // Skip browser chrome — it wastes vertical space and causes black bars
+  const showChrome = false;
+
   return (
-    <AbsoluteFill>
-      {/* Fake browser chrome */}
-      <div
+    <AbsoluteFill style={{ backgroundColor: "#0a0a0a" }}>
+      {/* Fake browser chrome (disabled by default — causes black bar issues) */}
+      {showChrome && <div
         style={{
           height: chromeHeight,
           backgroundColor: "#e8e8e8",
@@ -134,7 +137,7 @@ export const BrowserFrame: React.FC<BrowserFrameProps> = ({
         >
           {url ?? ""}
         </div>
-      </div>
+      </div>}
 
       {/* Screenshot area with zoom */}
       <div
@@ -157,7 +160,7 @@ export const BrowserFrame: React.FC<BrowserFrameProps> = ({
             style={{
               width: "100%",
               height: "100%",
-              objectFit: "cover",
+              objectFit: "contain",
             }}
           />
         </div>
