@@ -122,9 +122,44 @@ If the user provided a URL, capture screenshots using browser-use or Playwright.
 
 Generate **one single continuous avatar video** with all narration combined.
 
+**Two-step process: ElevenLabs for voice → HeyGen for lip sync.**
+
+**Step 4a: Generate audio with ElevenLabs**
+
+```bash
+ELEVEN_KEY=$(grep ELEVENLABS_API_KEY .env.local | cut -d= -f2)
+NARRATION="Full narration text here..."
+
+curl -s -o ./demo-work/avatars/narration.mp3 \
+  "https://api.elevenlabs.io/v1/text-to-speech/yr43K8H5LoTp6S1QFSGg" \
+  -H "xi-api-key: $ELEVEN_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"text\": \"$NARRATION\",
+    \"model_id\": \"eleven_multilingual_v2\",
+    \"voice_settings\": {
+      \"stability\": 0.4,
+      \"similarity_boost\": 0.8,
+      \"speed\": 1.1
+    }
+  }"
+
+echo "Audio generated: $(ls -la ./demo-work/avatars/narration.mp3)"
+```
+
+**Step 4b: Upload audio to temp host**
+
+```bash
+AUDIO_URL=$(curl -s -F "file=@./demo-work/avatars/narration.mp3" -A "devrel-toolkit/1.0" \
+  https://tmpfiles.org/api/v1/upload | python3 -c \
+  "import json,sys; print(json.load(sys.stdin).get('data',{}).get('url','').replace('tmpfiles.org/','tmpfiles.org/dl/'))")
+echo "Audio URL: $AUDIO_URL"
+```
+
+**Step 4c: Create panda video with HeyGen (lip sync to audio)**
+
 ```bash
 HEYGEN_KEY=$(grep HEYGEN_API_KEY .env.local | cut -d= -f2)
-NARRATION="Full narration text here..."
 
 RESPONSE=$(curl -s -X POST "https://api.heygen.com/v2/video/generate" \
   -H "X-Api-Key: $HEYGEN_KEY" \
@@ -137,10 +172,8 @@ RESPONSE=$(curl -s -X POST "https://api.heygen.com/v2/video/generate" \
         \"use_avatar_iv_model\": true
       },
       \"voice\": {
-        \"type\": \"text\",
-        \"input_text\": \"$NARRATION\",
-        \"voice_id\": \"453c20e1525a429080e2ad9e4b26f2cd\",
-        \"speed\": 1.15
+        \"type\": \"audio\",
+        \"audio_url\": \"$AUDIO_URL\"
       },
       \"background\": { \"type\": \"color\", \"value\": \"#0a0a0a\" }
     }],
@@ -157,8 +190,9 @@ for i in $(seq 1 60); do
   if [ "$STATUS" = "completed" ]; then
     VIDEO_URL=$(echo "$RESULT" | python3 -c "import json,sys; print(json.load(sys.stdin)['data']['video_url'])")
     curl -sL "$VIDEO_URL" -o ./demo-work/avatars/full-narration.mp4
-    DURATION=$(echo "$RESULT" | python3 -c "import json,sys; print(json.load(sys.stdin)['data'].get('duration',0))")
-    echo "Downloaded! Duration: ${DURATION}s"
+    # Get duration from the audio file
+    DURATION=$(ffprobe -v quiet -show_entries format=duration -of csv=p=0 ./demo-work/avatars/narration.mp3 2>/dev/null | cut -d. -f1)
+    echo "Downloaded! Duration: ~${DURATION}s"
     break
   fi
   if [ "$STATUS" = "failed" ]; then echo "FAILED: $RESULT"; break; fi
@@ -167,14 +201,14 @@ done
 ```
 
 **Avatar settings** (hardcoded — CDP Panda):
-- Type: `talking_photo` (custom character, NOT `avatar`)
-- ID: `2a206a5ea88b44608f8e3ae85efa4214`
-- `use_avatar_iv_model`: `true` (required for custom photo avatars)
-- Voice: `453c20e1525a429080e2ad9e4b26f2cd` (Archer)
-- Speed: `1.15` (slightly faster for energy)
-- Background: `#0a0a0a`
-- Dimensions: `1080x1080` (1:1 square)
-- Text limit: 5000 characters
+- **Voice**: ElevenLabs → `yr43K8H5LoTp6S1QFSGg` (Matt — professional, natural male)
+- **Model**: `eleven_multilingual_v2`
+- **Speed**: `1.1` (slightly faster for energy)
+- **Avatar**: HeyGen talking_photo `2a206a5ea88b44608f8e3ae85efa4214` (CDP Panda)
+- **`use_avatar_iv_model`**: `true`
+- **Background**: `#0a0a0a`
+- **Dimensions**: `1080x1080` (1:1 square)
+- **Env vars needed**: `ELEVENLABS_API_KEY` and `HEYGEN_API_KEY` in `.env.local`
 
 ### Step 5: Assemble & Render
 
