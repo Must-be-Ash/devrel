@@ -173,12 +173,15 @@ For scenes that need animated explainers, flow diagrams, or motion graphics inst
 - Strikethroughs must draw across from left to right
 - Set `durationInFrames` to at least `(number_of_elements × 25) + 60`
 
-1. Create a temporary Remotion project in the working directory:
+1. Create a Remotion project (non-interactive — no prompts):
    ```bash
    cd ./demo-work
-   npx create-video@latest --blank --no-tailwind --no-install custom-animations
-   cd custom-animations && npm install
+   mkdir -p custom-animations && cd custom-animations
+   npm init -y
+   npm install remotion @remotion/cli @remotion/bundler react react-dom
+   mkdir -p src public
    ```
+   Then create `src/Root.tsx` and `src/index.ts` manually — do NOT use `npx create-video` (it requires interactive input that Claude Code cannot provide).
 
 2. Read `references/animation-example.md` and use it as your starting template. Adapt the content to match your scenes. The file has a complete `useStagger` helper and working examples for flow diagrams and strikethrough animations.
 

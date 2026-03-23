@@ -94,12 +94,15 @@ You decide scene count, pacing, and narration. Keep it **casual and fun** — us
 - At frame 0, NOTHING should be visible — every element starts at opacity 0
 - Set `durationInFrames` to at least `(number_of_elements × 25) + 60`
 
-1. Create a Remotion project:
+1. Create a Remotion project (non-interactive — no prompts):
    ```bash
    cd ./demo-work
-   npx create-video@latest --blank --no-tailwind --no-install custom-animations
-   cd custom-animations && npm install
+   mkdir -p custom-animations && cd custom-animations
+   npm init -y
+   npm install remotion @remotion/cli @remotion/bundler react react-dom
+   mkdir -p src public
    ```
+   Then create `src/Root.tsx` and `src/index.ts` manually — do NOT use `npx create-video` (it requires interactive input that Claude Code cannot provide).
 
 2. Write animated React components. Use the `useStagger` pattern from `references/animation-example.md`.
 
