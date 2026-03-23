@@ -222,7 +222,7 @@ npx devrel-toolkit render --props ./demo-work/render-props.json --output video-o
 ```
 
 **Important**:
-- Use `"avatarPosition": "split-right"` — the panda takes up the right half, motion graphics fill the left half
+- Use `"avatarPosition": "bottom-right"` and `"avatarSize": 400` — larger PiP than the devrel skill for more panda presence
 - Scene `avatarDuration` values must sum to avatar duration + 2 seconds (transitions eat time)
 - `avatarClipPath` at the top level for continuous panda narration across all scenes
 - `screenshotPath` can be PNG or MP4 (Remotion animation clips)

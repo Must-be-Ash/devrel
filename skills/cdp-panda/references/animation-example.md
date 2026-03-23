@@ -164,9 +164,9 @@ const count = Math.round(interpolate(progress, [0, 1], [0, 1287]));
 </div>
 ```
 
-## Layout note for split-screen
+## Layout note
 
-The motion graphics render at 1920x1080 but in the final video the avatar takes the right half. Design your animations to work well in the **left half** of the frame — keep important content centered or left-aligned, don't put key elements on the far right where the avatar will cover them.
+The panda avatar is a large PiP (400px) in the bottom-right corner. Keep important content **away from the bottom-right** — center text and elements vertically and horizontally, or bias slightly towards the top-left. Don't put key elements where the avatar will cover them.
 
 ## Style guide
 
