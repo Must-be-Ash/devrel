@@ -4,7 +4,7 @@ description: >
   Create professional product demo videos with AI avatar presenter.
   Use when the user wants to record a product demo, create a video walkthrough,
   showcase app features, or generate a DevRel-style demo video. Analyzes your
-  codebase, captures browser screenshots, generates D-ID avatar narration, and
+  codebase, captures browser screenshots, generates HeyGen avatar narration, and
   composites everything into a polished MP4.
 ---
 
@@ -26,7 +26,7 @@ The user invokes this skill with:
 Parse the invocation:
 - `<prompt>`: What the demo should show (required unless `--script` is used)
 - `--url <url>`: Target URL (optional — default: detect local dev server)
-- `--no-avatar`: Skip D-ID avatar generation, browser recording only
+- `--no-avatar`: Skip HeyGen avatar generation, browser recording only
 - `--preview`: Fast low-res preview (480p, 15fps, no avatar)
 - `--script <path>`: Use a pre-written demo-script.json instead of planning
 
@@ -54,8 +54,8 @@ npx playwright install chromium  # one-time setup
 ```
 Then use Playwright's Node.js API — write a small `.mjs` script for each capture task using `chromium.launch()`, `page.goto()`, `page.screenshot()`, `page.locator().boundingBox()`.
 
-**D-ID API key**: Check if `DID_API_KEY` is set (in `.env.local` or environment). If it is NOT set and the user did NOT pass `--no-avatar`:
-- Ask the user: "I need a D-ID API key to generate the avatar presenter. You can get one at https://studio.d-id.com. Would you like to provide your key, or should I skip the avatar and create a video without a presenter?"
+**HeyGen API key**: Check if `HEYGEN_API_KEY` is set (in `.env.local` or environment). If it is NOT set and the user did NOT pass `--no-avatar`:
+- Ask the user: "I need a HeyGen API key to generate the avatar presenter. You can get one at https://app.heygen.com/settings. Would you like to provide your key, or should I skip the avatar and create a video without a presenter?"
 - Do NOT silently skip avatar generation. Always ask.
 
 ### Step 1: Understand the App
@@ -209,33 +209,68 @@ Skip this step if `--no-avatar` or `--preview` was specified.
 
 Generate **one single continuous avatar video** with all the narration combined. Do NOT generate separate clips per scene — separate clips create jarring cuts between sentences. One continuous video gives natural speech flow.
 
-**Use the D-ID Clips API** via the toolkit. It has 136+ professional presenters and works on all paid plans.
+**Use the HeyGen API** directly via curl. Default avatar: Armando (casual, close-up, male).
 
-1. List available presenters:
-   ```bash
-   npx devrel-toolkit d-id avatars
-   ```
+```bash
+HEYGEN_KEY=$(grep HEYGEN_API_KEY .env.local | cut -d= -f2)
 
-2. Pick a presenter. Default: `v2_public_Adam@0GLJgELXjc` (Adam — professional male). Concatenate all narrations into one script:
-   ```json
-   [
-     {
-       "id": "full-narration",
-       "narration": "Full concatenated narration text here...",
-       "avatarId": "v2_public_Adam@0GLJgELXjc"
-     }
-   ]
-   ```
+# Concatenate ALL scene narrations into one string
+NARRATION="Full narration text here. Each scene's narration joined together with natural pauses."
 
-3. Generate:
-   ```bash
-   npx devrel-toolkit d-id generate \
-     --script ./demo-work/avatar-script.json \
-     --output ./demo-work/avatars/ \
-     --avatar "v2_public_Adam@0GLJgELXjc"
-   ```
+# Create the video
+RESPONSE=$(curl -s -X POST "https://api.heygen.com/v2/video/generate" \
+  -H "X-Api-Key: $HEYGEN_KEY" \
+  -H "Content-Type: application/json" \
+  -d "{
+    \"video_inputs\": [{
+      \"character\": {
+        \"type\": \"avatar\",
+        \"avatar_id\": \"Armando_Casual_Front_public\",
+        \"avatar_style\": \"closeUp\"
+      },
+      \"voice\": {
+        \"type\": \"text\",
+        \"input_text\": \"$NARRATION\",
+        \"voice_id\": \"453c20e1525a429080e2ad9e4b26f2cd\"
+      },
+      \"background\": {
+        \"type\": \"color\",
+        \"value\": \"#1a1a1a\"
+      }
+    }],
+    \"dimension\": { \"width\": 1080, \"height\": 1080 }
+  }")
 
-4. This takes 1–5 minutes. The output includes a `manifest.json` with the clip path and total duration. Use this single avatar clip as `avatarClipPath` for the **first scene only** — the PiP will play continuously across all scenes.
+VIDEO_ID=$(echo "$RESPONSE" | python3 -c "import json,sys; print(json.load(sys.stdin)['data']['video_id'])")
+echo "Video ID: $VIDEO_ID"
+
+# Poll until done (takes 1-3 minutes)
+for i in $(seq 1 60); do
+  RESULT=$(curl -s "https://api.heygen.com/v1/video_status.get?video_id=$VIDEO_ID" \
+    -H "X-Api-Key: $HEYGEN_KEY")
+  STATUS=$(echo "$RESULT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('data',{}).get('status','unknown'))")
+  echo "[$i] Status: $STATUS"
+  if [ "$STATUS" = "completed" ]; then
+    VIDEO_URL=$(echo "$RESULT" | python3 -c "import json,sys; print(json.load(sys.stdin)['data']['video_url'])")
+    curl -sL "$VIDEO_URL" -o ./demo-work/avatars/full-narration.mp4
+    echo "Downloaded avatar video!"
+    break
+  fi
+  if [ "$STATUS" = "failed" ]; then
+    echo "FAILED: $RESULT"
+    break
+  fi
+  sleep 10
+done
+```
+
+**Avatar settings** (hardcoded — these are tested and confirmed):
+- Avatar: `Armando_Casual_Front_public` (casual male presenter)
+- Style: `closeUp` (chest-up framing, not waist-up)
+- Voice: `453c20e1525a429080e2ad9e4b26f2cd` (Archer — natural male voice)
+- Background: `#1a1a1a` (dark, matches video aesthetic)
+- Dimensions: `1080x1080` (1:1 square for PiP overlay)
+- Text limit: 5000 characters per video
 
 ### Step 5: Assemble Render Props
 
@@ -325,10 +360,10 @@ Wait for the render to complete. This may take a few minutes.
 - Try alternative selectors (by text, by role, by index)
 - If still failing, skip the scene with a warning to the user
 
-**D-ID generation fails:**
+**HeyGen generation fails:**
 - Check error message: 401 → API key issue, 402 → credits exhausted
 - Offer to render without avatar: `--no-avatar` mode
-- If timeout: the D-ID API may be slow, suggest retrying
+- If timeout: the HeyGen API may be slow, suggest retrying
 
 **Remotion render fails:**
 - Verify all file paths in render-props.json exist

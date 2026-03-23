@@ -17,13 +17,13 @@ Install the DevRel Agent video toolkit. Do ALL of the following steps:
 2. Install system dependencies:
    npx devrel-toolkit setup
 
-3. Add my D-ID API key to this project's .env.local:
-   DID_API_KEY=<my_key>
+3. Add my HeyGen API key to this project's .env.local:
+   HEYGEN_API_KEY=<my_key>
 
 Once everything is done, tell me to restart Claude Code so the skills load.
 ```
 
-Replace `<my_key>` with your D-ID API key from [d-id.com](https://studio.d-id.com).
+Replace `<my_key>` with your HeyGen API key from [app.heygen.com/settings](https://app.heygen.com/settings).
 
 After Claude Code finishes, **restart Claude Code** so the skills load.
 
