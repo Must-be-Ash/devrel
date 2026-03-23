@@ -314,7 +314,7 @@ Combine screenshots, avatar clips, bounding boxes, and timing into `render-props
 - `avatarClipPath` at the top level is the single continuous avatar video — it plays across all scenes
 - Each scene still needs `avatarDuration` — this controls how long that scene lasts (divide the total avatar duration across scenes proportionally based on narration word count)
 - `screenshotPath` can be a PNG (app screenshot) or MP4 (custom animation from Step 3b)
-- Get the total avatar duration from `manifest.json`. Divide it across scenes based on word count.
+- **The total of all scene `avatarDuration` values must equal the avatar video duration + 2 seconds.** Transitions eat into the total time, so if the avatar is 48s, make the scene durations sum to 50s. Add the extra time to the last scene. This prevents the video from cutting off the avatar's closing line.
 
 ### Step 6: Render the Video
 
