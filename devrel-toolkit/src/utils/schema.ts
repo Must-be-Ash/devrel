@@ -100,7 +100,7 @@ export const RenderPropsSchema = z.object({
   fps: z.number(),
   scenes: z.array(RenderSceneSchema),
   avatarPosition: z
-    .enum(["bottom-right", "bottom-left", "top-right", "top-left"])
+    .enum(["bottom-right", "bottom-left", "top-right", "top-left", "split-right", "split-left"])
     .optional(),
   avatarSize: z.number().optional(),
   avatarClipPath: z.string().optional(),

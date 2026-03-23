@@ -139,7 +139,8 @@ RESPONSE=$(curl -s -X POST "https://api.heygen.com/v2/video/generate" \
       \"voice\": {
         \"type\": \"text\",
         \"input_text\": \"$NARRATION\",
-        \"voice_id\": \"453c20e1525a429080e2ad9e4b26f2cd\"
+        \"voice_id\": \"453c20e1525a429080e2ad9e4b26f2cd\",
+        \"speed\": 1.15
       },
       \"background\": { \"type\": \"color\", \"value\": \"#0a0a0a\" }
     }],
@@ -170,6 +171,7 @@ done
 - ID: `2a206a5ea88b44608f8e3ae85efa4214`
 - `use_avatar_iv_model`: `true` (required for custom photo avatars)
 - Voice: `453c20e1525a429080e2ad9e4b26f2cd` (Archer)
+- Speed: `1.15` (slightly faster for energy)
 - Background: `#0a0a0a`
 - Dimensions: `1080x1080` (1:1 square)
 - Text limit: 5000 characters
@@ -183,6 +185,7 @@ npx devrel-toolkit render --props ./demo-work/render-props.json --output video-o
 ```
 
 **Important**:
+- Use `"avatarPosition": "split-right"` — the panda takes up the right half, motion graphics fill the left half
 - Scene `avatarDuration` values must sum to avatar duration + 2 seconds (transitions eat time)
 - `avatarClipPath` at the top level for continuous panda narration across all scenes
 - `screenshotPath` can be PNG or MP4 (Remotion animation clips)
@@ -193,11 +196,18 @@ Report the output file. Offer to iterate.
 
 ## Narration Style
 
-- **Casual and fun** — "So here's the cool part..." not "The following feature enables..."
-- **Use analogies** — "Think of Permit2 like a universal parking pass for your tokens"
-- **Short punchy sentences** — 10-15 words max
-- **Address the viewer** — "You" not "users" or "developers"
-- **Get excited about cool tech** — show genuine enthusiasm
+**Open with a hook** — the first sentence grabs attention and sums up the whole video:
+- GOOD: "x402 supports all ERC-20 tokens now!"
+- BAD: "Hey, check this out, so today we're going to talk about..."
+
+**Rules:**
+- **No filler words** — never start with "hey", "so", "check this out", "let me show you". Get straight to it.
+- **Everyday language** — normal words people actually say. Technical terms (ERC-20, Permit2, EIP-3009) are fine because that's the subject matter, but everything else should be plain English.
+- **High energy, natural excitement** — not synthetic hype. Genuine enthusiasm about the tech.
+- **Short punchy sentences** — 10-15 words max. People have short attention spans.
+- **Address the viewer directly** — "you" not "users" or "developers"
+- **No synthetic speech patterns** — don't write sentences that sound like AI. Read it out loud — if it sounds weird to say, rewrite it.
+- **Use analogies** — "Permit2 is like a universal parking pass for your tokens"
 
 ## References
 

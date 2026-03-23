@@ -10,7 +10,7 @@ import { Video } from "@remotion/media";
 
 interface AvatarPiPProps {
   clipPath?: string;
-  position: "bottom-right" | "bottom-left" | "top-right" | "top-left";
+  position: "bottom-right" | "bottom-left" | "top-right" | "top-left" | "split-right" | "split-left";
   size: number;
   durationFrames: number;
 }
@@ -21,6 +21,27 @@ function getPositionStyle(
   position: AvatarPiPProps["position"],
   size: number
 ): React.CSSProperties {
+  // Split modes: avatar takes up half the screen
+  if (position === "split-right") {
+    return {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      width: "50%",
+      height: "100%",
+    };
+  }
+  if (position === "split-left") {
+    return {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "50%",
+      height: "100%",
+    };
+  }
+
+  // PiP modes: small corner overlay
   const base: React.CSSProperties = {
     position: "absolute",
     width: size,
@@ -33,9 +54,9 @@ function getPositionStyle(
     case "bottom-left":
       return { ...base, bottom: MARGIN, left: MARGIN };
     case "top-right":
-      return { ...base, top: MARGIN + 40, right: MARGIN }; // +40 for browser chrome
+      return { ...base, top: MARGIN, right: MARGIN };
     case "top-left":
-      return { ...base, top: MARGIN + 40, left: MARGIN };
+      return { ...base, top: MARGIN, left: MARGIN };
   }
 }
 
@@ -47,11 +68,12 @@ export const AvatarPiP: React.FC<AvatarPiPProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const isSplit = position === "split-right" || position === "split-left";
 
   if (!clipPath) return null;
 
-  // Entrance: scale from 0 → 1 with spring
-  const entranceScale = spring({
+  // Entrance: scale from 0 → 1 with spring (skip for split mode)
+  const entranceScale = isSplit ? 1 : spring({
     fps,
     frame: frame - 5,
     config: { damping: 20, stiffness: 200 },
@@ -73,12 +95,12 @@ export const AvatarPiP: React.FC<AvatarPiPProps> = ({
     <div
       style={{
         ...getPositionStyle(position, size),
-        borderRadius: 20,
+        borderRadius: isSplit ? 0 : 20,
         overflow: "hidden",
-        transform: `scale(${scale})`,
+        transform: isSplit ? undefined : `scale(${scale})`,
         opacity,
-        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-        border: "3px solid rgba(255, 255, 255, 0.8)",
+        boxShadow: isSplit ? undefined : "0 4px 20px rgba(0, 0, 0, 0.3)",
+        border: isSplit ? undefined : "3px solid rgba(255, 255, 255, 0.8)",
       }}
     >
       <Video
