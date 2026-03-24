@@ -166,7 +166,7 @@ const count = Math.round(interpolate(progress, [0, 1], [0, 1287]));
 
 ## Layout note
 
-The panda avatar is a large PiP (400px) in the bottom-right corner. Keep important content **away from the bottom-right** — center text and elements vertically and horizontally, or bias slightly towards the top-left. Don't put key elements where the avatar will cover them.
+The panda avatar takes up the **right 40%** of the frame (split-right at 40% ratio). All motion graphics and text must fit within the **left 60%** (0-1152px of 1920px width). Left-align or center content within that area. Never place important elements past x=1100.
 
 ## Style guide
 

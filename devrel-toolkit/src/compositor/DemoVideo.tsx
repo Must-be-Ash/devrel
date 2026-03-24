@@ -34,6 +34,10 @@ export const DemoVideo: React.FC<RenderProps> = (props) => {
     avatarPosition = "bottom-right",
     avatarSize = 280,
     avatarClipPath,
+    avatarBorder,
+    avatarBorderRadius,
+    avatarMargin,
+    avatarSplitRatio,
     showSubtitles = true,
     intro,
     outro,
@@ -91,6 +95,10 @@ export const DemoVideo: React.FC<RenderProps> = (props) => {
                   durationFrames={sceneDurationFrames}
                   avatarPosition={avatarPosition}
                   avatarSize={avatarSize}
+                  avatarBorder={avatarBorder}
+                  avatarBorderRadius={avatarBorderRadius}
+                  avatarMargin={avatarMargin}
+                  avatarSplitRatio={avatarSplitRatio}
                   showSubtitles={showSubtitles}
                   compositionHasAvatar={!!avatarClipPath}
                 />
@@ -122,6 +130,10 @@ export const DemoVideo: React.FC<RenderProps> = (props) => {
           position={avatarPosition}
           size={avatarSize}
           durationFrames={totalFrames}
+          border={avatarBorder}
+          borderRadius={avatarBorderRadius}
+          margin={avatarMargin}
+          splitRatio={avatarSplitRatio}
         />
       )}
     </AbsoluteFill>
@@ -136,9 +148,13 @@ const SceneContent: React.FC<{
   durationFrames: number;
   avatarPosition: NonNullable<RenderProps["avatarPosition"]>;
   avatarSize: number;
+  avatarBorder?: string;
+  avatarBorderRadius?: number;
+  avatarMargin?: number;
+  avatarSplitRatio?: number;
   showSubtitles: boolean;
   compositionHasAvatar: boolean;
-}> = ({ scene, durationFrames, avatarPosition, avatarSize, showSubtitles, compositionHasAvatar }) => {
+}> = ({ scene, durationFrames, avatarPosition, avatarSize, avatarBorder, avatarBorderRadius, avatarMargin, avatarSplitRatio, showSubtitles, compositionHasAvatar }) => {
   return (
     <AbsoluteFill>
       {/* Browser screenshot with zoom animation */}
@@ -172,6 +188,10 @@ const SceneContent: React.FC<{
           position={avatarPosition}
           size={avatarSize}
           durationFrames={durationFrames}
+          border={avatarBorder}
+          borderRadius={avatarBorderRadius}
+          margin={avatarMargin}
+          splitRatio={avatarSplitRatio}
         />
       )}
 
@@ -181,6 +201,10 @@ const SceneContent: React.FC<{
           text={scene.narration}
           durationFrames={durationFrames}
           visible={true}
+          contentLeftOffset={
+            avatarPosition === "split-left" ? (avatarSplitRatio ?? 50) :
+            avatarPosition === "split-right" ? 0 : 0
+          }
         />
       )}
     </AbsoluteFill>

@@ -5,12 +5,14 @@ interface SubtitlesProps {
   text: string;
   durationFrames: number;
   visible: boolean;
+  contentLeftOffset?: number;
 }
 
 export const Subtitles: React.FC<SubtitlesProps> = ({
   text,
   durationFrames,
   visible,
+  contentLeftOffset = 0,
 }) => {
   const frame = useCurrentFrame();
 
@@ -44,14 +46,19 @@ export const Subtitles: React.FC<SubtitlesProps> = ({
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
   );
 
+  // When contentLeftOffset is set (e.g. 33.33 for split-left avatar),
+  // center subtitles within the content area (right portion of screen)
+  const contentWidth = 100 - contentLeftOffset;
+  const centerX = contentLeftOffset + contentWidth / 2;
+
   return (
     <div
       style={{
         position: "absolute",
         bottom: 48,
-        left: "50%",
+        left: `${centerX}%`,
         transform: "translateX(-50%)",
-        maxWidth: "80%",
+        maxWidth: `${contentWidth * 0.85}%`,
         opacity: opacity * fadeOut,
       }}
     >
