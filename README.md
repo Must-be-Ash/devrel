@@ -29,6 +29,8 @@ Install the DevRel Agent video toolkit. Do ALL of the following steps:
 3. Add API keys to this project's .env.local:
    HEYGEN_API_KEY=<heygen_key>
    ELEVENLABS_API_KEY=<elevenlabs_key>
+   FIRECRAWL_API_KEY=<firecrawl_key>
+   TWITTER_BEARER_TOKEN=<twitter_bearer_token>
 
 Once everything is done, tell me to restart Claude Code so the skills load.
 ```
@@ -36,6 +38,8 @@ Once everything is done, tell me to restart Claude Code so the skills load.
 **API keys:**
 - HeyGen: [app.heygen.com/settings](https://app.heygen.com/settings) (Pay-As-You-Go)
 - ElevenLabs: [elevenlabs.io](https://elevenlabs.io) (Starter $5/mo — needed for cdp-panda voice)
+- Firecrawl: [firecrawl.dev](https://firecrawl.dev) (optional — for scraping URLs into content)
+- Twitter/X: [developer.x.com](https://developer.x.com) (optional — for fetching tweets/threads)
 
 After Claude Code finishes, **restart Claude Code** so the skills load.
 
