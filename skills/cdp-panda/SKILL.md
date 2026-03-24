@@ -104,7 +104,7 @@ You decide scene count, pacing, and narration. Keep it **casual and fun** — us
    ```
    Then create `src/Root.tsx` and `src/index.ts` manually — do NOT use `npx create-video` (it requires interactive input that Claude Code cannot provide).
 
-2. Write animated React components. Use the `useStagger` pattern from `references/animation-example.md`.
+2. Write animated React components. Study ALL patterns from `references/animation-example.md` — use orbital visualizations, journey paths with traveling dots, gradient hero typography, and animated SVG paths. Do NOT fall back to basic grids, box-arrow diagrams, or two-column text lists. Browse https://21st.dev for component design inspiration — search for visual patterns (cards, gradients, layouts) and recreate their style using Remotion `spring`/`interpolate` (do NOT use framer-motion, it doesn't work in Remotion's frame-by-frame rendering).
 
 3. Register compositions and render to MP4:
    ```bash
@@ -112,10 +112,17 @@ You decide scene count, pacing, and narration. Keep it **casual and fun** — us
    ```
 
 **Style guide for CDP Panda videos:**
-- Background: `#0a0a0a` (dark)
-- Accent colors: Coinbase blue `#0052FF`, green `#00D632`, white `#FFFFFF`
-- Font: system-ui, monospace for code
+- Background: Animated gradient mesh (NOT flat color) — see `references/animation-example.md` for the mesh pattern
+- Accent colors: Coinbase blue `#0052FF` (gradient to `#4d8bff`), green `#00D632` (gradient to `#4dff7a`), white `#FFFFFF`
+- Font: system-ui with negative letter-spacing for headings, monospace for code
 - Resolution: 1920x1080
+- Use gradient text (`WebkitBackgroundClip: "text"`) for hero typography
+- Use inline SVG icons, NEVER emojis
+- Use glass-morphism cards with `backdropFilter: blur(12px)`
+- Use orbital visualizations, animated SVG paths, and traveling light dots — NOT grids/boxes/arrows
+- NEVER use CSS `filter: blur()` on animated elements (kills render performance)
+- All content must be positioned in the right 2/3 of the frame (left 1/3 is the avatar)
+- Browse https://21st.dev for design inspiration when creating new visual components
 
 ### Step 3b: Capture URL Screenshots (if applicable)
 
@@ -222,7 +229,7 @@ npx devrel-toolkit render --props ./demo-work/render-props.json --output video-o
 ```
 
 **Important**:
-- Use `"avatarPosition": "split-right"` with `"avatarSplitRatio": 40` and `"avatarBorder": "none"` — panda takes the right 40%, motion graphics fill the left 60%. Design all animations within the left 60% of the frame.
+- Use `"avatarPosition": "split-left"` with `"avatarSplitRatio": 33.33`, `"avatarBorder": "none"`, `"avatarBorderRadius": 0`, `"avatarMargin": 0` — panda takes the left 1/3, motion graphics fill the right 2/3. Design all animations within the right 66.67% of the frame using the panel wrapper from `references/animation-example.md`.
 - Scene `avatarDuration` values must sum to avatar duration + 2 seconds (transitions eat time)
 - `avatarClipPath` at the top level for continuous panda narration across all scenes
 - `screenshotPath` can be PNG or MP4 (Remotion animation clips)
