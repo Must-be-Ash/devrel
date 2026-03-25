@@ -1,6 +1,6 @@
 {
   "name": "devrel-toolkit",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Toolkit for automated product demo video creation with AI avatars and Remotion compositing",
   "type": "module",
   "bin": {
@@ -10,7 +10,8 @@
   "files": [
     "dist",
     "skills",
-    "remotion.config.ts"
+    "remotion.config.ts",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc --skipLibCheck",
