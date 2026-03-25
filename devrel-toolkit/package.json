@@ -1,7 +1,12 @@
 {
   "name": "devrel-toolkit",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Toolkit for automated product demo video creation with AI avatars and Remotion compositing",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Must-be-Ash/devrel"
+  },
+  "homepage": "https://github.com/Must-be-Ash/devrel#readme",
   "type": "module",
   "bin": {
     "devrel-toolkit": "./dist/cli/index.js"
