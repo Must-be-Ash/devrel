@@ -1,35 +1,63 @@
 # devrel-toolkit
 
-Toolkit for automated product demo video creation with AI avatars and Remotion compositing. Designed to be used with the `/make-demo` Claude Code skill.
+Create product demo videos and developer content from a single prompt. Two Claude Code skills — one for product demos, one for CDP Panda mascot videos — powered by Remotion motion graphics and AI avatars.
 
-## Prerequisites
+## Skills
 
-- **Node.js 18+**
-- **FFmpeg** — `brew install ffmpeg` (macOS) or `apt install ffmpeg` (Linux)
-- **Browser-Use CLI** — `curl -fsSL https://browser-use.com/cli/install.sh | bash`
-- **D-ID API key** — Sign up at [d-id.com](https://d-id.com), add to `.env.local` as `DID_API_KEY`
+- **`/make-demo`** — Product demo videos. Navigates your app, captures screenshots, generates motion graphics, and renders with an AI avatar presenter.
+- **`/cdp-panda`** — CDP Panda videos. Creates Coinbase Developer Platform content from changelogs, tweets, URLs, or prompts. Split-screen layout with Remotion animations + panda avatar.
 
-## Quick Start
+## Setup
 
 ```bash
-# Check dependencies
-npx devrel-toolkit doctor
+# 1. Install skills
+npx skills add https://github.com/browser-use/browser-use --skill browser-use
+npx skills add remotion-dev/skills
+npx skills add https://github.com/Must-be-Ash/devrel --skill make-demo
+npx skills add https://github.com/Must-be-Ash/devrel --skill cdp-panda
 
-# Install the Claude Code skill
-npx skills add <repo-url> --skill make-demo
+# 2. Install system dependencies
+npx devrel-toolkit setup
 
-# Then in Claude Code:
-/make-demo "show the signup flow and dashboard"
+# 3. Add API keys to your project's .env.local
 ```
 
-## Install the Skill
+### API Keys
+
+Add these to your project's `.env.local`:
 
 ```bash
-# Option A: Use the built-in command
-npx devrel-toolkit install-skill
+# Required
+HEYGEN_API_KEY=...          # HeyGen avatar generation — https://app.heygen.com/settings
+ELEVENLABS_API_KEY=...      # ElevenLabs voice — https://elevenlabs.io (Starter $5/mo for cdp-panda)
 
-# Option B: Install from repo
-npx skills add <repo-url> --skill make-demo
+# Optional
+FIRECRAWL_API_KEY=...       # Scrape URLs into content — https://firecrawl.dev
+TWITTER_BEARER_TOKEN=...    # Fetch tweets/threads — https://developer.x.com
+```
+
+Then restart Claude Code so skills load.
+
+## Usage
+
+```bash
+# Product demo from your codebase
+/make-demo "show the signup flow, highlight the OAuth buttons, then demo the dashboard"
+
+# Product demo from a URL
+/make-demo --url https://example.com "walk through the landing page"
+
+# CDP Panda video from a blog post
+/cdp-panda "Create a video about this: https://www.coinbase.com/developer-platform/..."
+
+# CDP Panda video from a tweet thread
+/cdp-panda "Fetch this thread and make a changelog recap: https://x.com/CoinbaseDev/status/..."
+
+# Preview (fast, no avatar)
+/make-demo --preview "quick look at the settings page"
+
+# No avatar (motion graphics only)
+/cdp-panda --no-avatar "motion graphics only, no panda"
 ```
 
 ## CLI Commands
@@ -37,27 +65,13 @@ npx skills add <repo-url> --skill make-demo
 | Command | Description |
 |---------|-------------|
 | `npx devrel-toolkit doctor` | Check all dependencies |
-| `npx devrel-toolkit d-id avatars` | List available D-ID avatars |
-| `npx devrel-toolkit d-id generate --script <path> --output <dir>` | Generate avatar clips |
+| `npx devrel-toolkit setup` | Install missing dependencies |
 | `npx devrel-toolkit render --props <path> --output <path>` | Full quality video render |
 | `npx devrel-toolkit preview --props <path> --output <path>` | Quick low-res preview |
 | `npx devrel-toolkit render --props <path> --transparent` | ProRes 4444 with transparency |
-| `npx devrel-toolkit setup` | Install missing dependencies |
-| `npx devrel-toolkit install-skill` | Install make-demo skill to ~/.claude/skills/ |
 
-## Why a Custom Remotion Setup
+## Prerequisites
 
-This toolkit uses a custom Remotion configuration rather than `npx create-video` because:
-
-- The compositor needs programmatic rendering via `bundle()` + `renderMedia()` (not Remotion Studio)
-- Components are designed for the specific demo video pipeline (BrowserFrame, AvatarPiP, Highlights)
-- The CLI wraps Remotion rendering with pre/post-processing steps (D-ID avatar generation, file validation)
-- No Tailwind or extra styling dependencies needed — all styles are inline for Remotion compatibility
-
-## Environment Variables
-
-```bash
-# In your project's .env.local
-DID_API_KEY=...                     # D-ID API key for avatar video generation
-BROWSER_USE_API_KEY=...             # (Optional) Browser-Use Cloud API key
-```
+- **Node.js 18+**
+- **FFmpeg** — `brew install ffmpeg` (macOS) or `apt install ffmpeg` (Linux)
+- **Browser-Use CLI** or **Playwright** — for capturing app screenshots
